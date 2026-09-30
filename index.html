@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offline Demonstrator</title>
+<meta name="description" content="Offline demonstrator of a model-driven access-control federation: the real PIP Studio, fleet controller and device-twin UIs on one recorded evaluation instance.">
+<style>
+  :root { --bg: #f7f7f5; --panel: #ffffff; --ink: #1c1f24; --muted: #5d646f; --line: #e2e2dd; --accent: #2457c5; --ok: #1f7a4a; --warn: #9a5b00; --chip: #eef1f7; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14161a; --panel: #1c1f24; --ink: #e8e9eb; --muted: #9aa1ab; --line: #2c3037; --accent: #7ea6ff; --ok: #5ccf8e; --warn: #f0b35a; --chip: #252a33; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.01em; }
+  h2 { font-size: 19px; margin: 40px 0 12px; }
+  p { margin: 0 0 12px; }
+  .lead { color: var(--muted); font-size: 17px; max-width: 760px; }
+  a { color: var(--accent); }
+  code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 20px 0 4px; color: var(--muted); font-size: 14px; }
+  .flow b { color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-weight: 600; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .card { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; text-decoration: none; color: inherit; transition: border-color .15s; }
+  .card:hover { border-color: var(--accent); }
+  .card h3 { margin: 0 0 4px; font-size: 16px; color: var(--accent); }
+  .card p { margin: 0; color: var(--muted); font-size: 14px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; margin-bottom: 8px; }
+  .live { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
+  .replay { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+  ol.steps { padding-left: 22px; margin: 0; }
+  ol.steps li { margin-bottom: 10px; }
+  ol.steps li span { color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  tr:last-child td { border-bottom: 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+  .facts span { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 13px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Offline demonstrator</h1>
+  <p class="lead">A model-driven access-control federation, shown on one configuration of the evaluation. The pages below are the system's own user interfaces, built unchanged except for the data layer. Nothing needs to be installed and no data leaves your browser.</p>
+
+  <div class="flow"><b>PIP Studio</b> multi-level model → <b>Fleet controller</b> projection, per-space bundles → <b>Device twins ×2</b> local decisions, statecharts</div>
+
+  <h2>The instance</h2>
+  <p>Configuration <code>office-01</code> of the office domain. It is the seed row of RQ1 and passed all four checks, both in simulation and on the two hardware controllers.</p>
+  <div class="facts"><span>4 roles</span><span>8 principals, 8 NFC credentials (1 revoked)</span><span>6 spaces</span><span>5 policies (1 deny)</span><span>3 time windows</span><span>2 access points, 10 sensors</span><span>2 KPIs, 1 goal</span></div>
+
+  <h2>Open the system</h2>
+  <div class="cards">
+    <a class="card" id="studio-link" href="studio/"><span class="tag live">live model</span><h3>PIP Studio</h3><p>The O2 → O1 → O0 tower. Edit the level-0 model: the conformance check, the commit gate and the projection run in your browser, with the same code the server runs.</p></a>
+    <a class="card" href="fleet/"><span class="tag replay">recorded run</span><h3>Fleet controller</h3><p>Map, PIP view (devices → spaces, decision audit), KPIs, rules, fleet behaviour, all taken from the recorded run.</p></a>
+    <a class="card" href="device/?d=acs1"><span class="tag replay">recorded run</span><h3>Device twin ACS-1</h3><p>Guards <code>room_p1_28</code>. Statechart, local PDP and simulated hardware. Tapping a card replays the twin's recorded reaction.</p></a>
+    <a class="card" href="device/?d=acs2"><span class="tag replay">recorded run</span><h3>Device twin ACS-2</h3><p>Guards <code>meeting_a</code>. The same card can be allowed here and unknown on ACS-1: each twin only knows its own space.</p></a>
+  </div>
+
+  <h2>A five-minute tour</h2>
+  <ol class="steps">
+    <li><b>Model.</b> Open the Studio on <code>office-01</code>. Switch between the Diagram and Table views. The breadcrumb leads up to the domain model and the metamodel. <span>The badge "10 of 10 sensors online" is the fleet's heartbeat, simulated here.</span></li>
+    <li><b>Commit.</b> In the Table view, change the <code>label</code> of an access point and press Save. The model moves to version 2. <span>Changes stay in this browser; "Reset demo" restores the captured model.</span></li>
+    <li><b>Gate.</b> Remove the sensor <code>acs1_co2</code> from <code>acs1 → senses</code>. The check reports <code>C8.TOO_FEW</code> and <code>P5.INPUT_UNBOUND</code> (the KPI <code>co2.avg</code> would read an unbound sensor), and Save is disabled. Press Discard.</li>
+    <li><b>Fleet.</b> Open the fleet. The Map shows the projection the fleet pulled and the bundle each device received. The PIP tab lists the 18 recorded decisions, and new ones arrive as the run is replayed.</li>
+    <li><b>Twin.</b> Open ACS-1. Put <code>EVAL-TAG-4</code> in the <i>tag</i> field and press <i>TAG_DETECTED</i>: the twin goes to <code>s_denied</code> with reason <code>revoked</code>. <code>EVAL-TAG-1</code> is allowed; <code>EVAL-TAG-2</code> is <code>unknown_credential</code> on ACS-1 but allowed on ACS-2.</li>
+  </ol>
+
+  <h2>What is live and what is recorded</h2>
+  <div class="wrap"><table>
+    <tr><th>Part</th><th>In this demo</th></tr>
+    <tr><td>Studio: model, conformance, commit gate, projection, export</td><td>Live. The metamodel library runs in the page, starting from the rows captured in the Studio's database.</td></tr>
+    <tr><td>Fleet and twins: all reads</td><td>Recorded from the running system (simulated devices) right after the 18 probe taps of the evaluation.</td></tr>
+    <tr><td>Fleet and twin event streams</td><td>Replayed in a loop, with their original timing. Timestamps are shifted to the present.</td></tr>
+    <tr><td>Card taps on a twin</td><td>The recorded reaction of that twin to that card.</td></tr>
+    <tr><td>Configuration changes in fleet and twins (rules, KPIs, statecharts)</td><td>Not applied; a notice says so. Override and inherit on a twin are kept in memory.</td></tr>
+  </table></div>
+
+  <h2>Evaluation results</h2>
+  <div class="wrap"><table>
+    <tr><th></th><th>Simulation</th><th>Hardware (2 Raspberry Pi controllers)</th></tr>
+    <tr><td>RQ1: configuration reflected at runtime</td><td>30/30 configurations; 476 probes, 0 mismatches</td><td>3/3; 30 physical taps, 0 mismatches</td></tr>
+    <tr><td>RQ2: hardware change → model change</td><td>3/3 domains, 24/24 steps</td><td>3/3 domains, 24/24 steps</td></tr>
+    <tr><td>M1: model commit → last device bundle</td><td>median 6.4 s</td><td>3.7–7.5 s</td></tr>
+    <tr><td>M2: statechart apply → last twin</td><td>median 20 ms</td><td>23–39 ms</td></tr>
+    <tr><td>M4: hardware change → observation</td><td>median 1.7 s</td><td>median 4.4 s</td></tr>
+  </table></div>
+  <p class="note" style="margin-top:10px">Raw data: <a href="snapshot/results/rq1.csv">rq1.csv</a> · <a href="snapshot/results/rq2.csv">rq2.csv</a> · checks of <code>office-01</code>: <a href="snapshot/results/checks-office-01-sim-2026-09-23.json">simulation</a>, <a href="snapshot/results/checks-office-01-hw-2026-09-24.json">hardware</a>.</p>
+
+  <p class="note" style="margin-top:32px">Anonymised for review. People are fictional; organisation, hosts and device identifiers are replaced. The only external request is the JSON editor of the twin page, loaded from a public CDN.</p>
+</main>
+<script>
+  // open the Studio directly on the captured level-0 model
+  fetch('snapshot/meta.json').then(function (r) { return r.json(); }).then(function (m) {
+    document.getElementById('studio-link').href = 'studio/?model=' + encodeURIComponent(m.modelId);
+  }).catch(function () { /* the Studio opens on the first model */ });
+</script>
+</body>
+</html>
