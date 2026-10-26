@@ -7,6 +7,11 @@
  *   - a simulated card tap on a twin (POST /api/sim/event) → the recorded reaction of that twin to that card.
  * Recorded instants are shifted to "now", so freshness and online indicators behave as on the live system.
  * The page says which snapshot it serves: <script src="../shim/http-shim.js" data-app="fleet|device">.
+ *
+ * It also works on hosts that serve every page sandboxed without allow-same-origin (anonymous.4open.science): the
+ * page then has an opaque origin, so fetch of the snapshot fails (no CORS) and Web Storage throws. The snapshot is
+ * therefore read through classic <script> wrappers (snapshot/<file>.js, written by build.sh) and Web Storage falls
+ * back to an in-memory one for the life of the page.
  */
 (function () {
   'use strict';
@@ -17,12 +22,45 @@
   var root = new URL('../snapshot/', location.href);
   var realFetch = window.fetch.bind(window);
   var RealEventSource = window.EventSource;
+
+  // ---- Web Storage: in memory when the sandbox blocks it ----------------------------------------------------------
+  ['localStorage', 'sessionStorage'].forEach(function (name) {
+    try { window[name].length; return; } catch (e) { /* blocked: replaced below */ }
+    var m = {};
+    var mem = {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(m, k) ? m[k] : null; },
+      setItem: function (k, v) { m[k] = String(v); },
+      removeItem: function (k) { delete m[k]; },
+      clear: function () { m = {}; },
+      key: function (i) { var ks = Object.keys(m); return i < ks.length ? ks[i] : null; },
+      get length() { return Object.keys(m).length; }
+    };
+    try { Object.defineProperty(window, name, { value: mem, configurable: true }); } catch (e) { /* left as is */ }
+  });
+
+  // ---- snapshot: snapshot/<p>.js calls window.__demoSnapshot(p, data); classic scripts need no CORS --------------
+  var loaded = {}, waiting = {};
+  window.__demoSnapshot = function (p, data) { loaded[p] = data; (waiting[p] || []).forEach(function (w) { w[0](data); }); delete waiting[p]; };
+  window.demoSnapshot = function (p) {
+    if (p in loaded) return Promise.resolve(loaded[p]);
+    return new Promise(function (resolve, reject) {
+      if (!waiting[p]) {
+        waiting[p] = [];
+        var s = document.createElement('script');
+        s.src = new URL(p + '.js', root).href;
+        s.onerror = function () { (waiting[p] || []).forEach(function (w) { w[1](new Error(p + ' not found')); }); delete waiting[p]; };
+        document.head.appendChild(s);
+      }
+      waiting[p].push([resolve, reject]);
+    });
+  };
+
   if (app === 'studio') { // the Studio has its own in-browser backend (VITE_DEMO): only the banner
     var onReady = function () { banner('Offline demo · edits and commits stay in this browser'); };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady); else onReady();
   }
 
-  var json = function (p) { return realFetch(new URL(p, root)).then(function (r) { if (!r.ok) throw new Error(p + ' ' + r.status); return r.json(); }); };
+  var json = window.demoSnapshot;
   var ready = app === 'studio' ? null : Promise.all([json(scope + '/gets.json'), json('streams/' + scope + '.json'), json('streams/taps.json'), json('meta.json')]);
 
   // ---- time shift -----------------------------------------------------------------------------------------------
@@ -51,7 +89,7 @@
     document.head.appendChild(css);
     var bar = document.createElement('div');
     bar.id = 'demo-bar';
-    bar.innerHTML = '<span class="dot"></span><span>' + text + '</span><a href="../">demo home</a><a href="#" title="Hide" onclick="this.parentNode.remove();return false">×</a>';
+    bar.innerHTML = '<span class="dot"></span><span>' + text + '</span><a href="../index.html">demo home</a><a href="#" title="Hide" onclick="this.parentNode.remove();return false">×</a>';
     var n = document.createElement('div');
     n.id = 'demo-notice';
     document.body.appendChild(bar);

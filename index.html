@@ -53,10 +53,10 @@
 
   <h2>Open the system</h2>
   <div class="cards">
-    <a class="card" id="studio-link" href="studio/"><span class="tag live">live model</span><h3>PIP Studio</h3><p>The O2 → O1 → O0 tower. Edit the level-0 model: the conformance check, the commit gate and the projection run in your browser, with the same code the server runs.</p></a>
-    <a class="card" href="fleet/"><span class="tag replay">recorded run</span><h3>Fleet controller</h3><p>Map, PIP view (devices → spaces, decision audit), KPIs, rules, fleet behaviour, all taken from the recorded run.</p></a>
-    <a class="card" href="device/?d=acs1"><span class="tag replay">recorded run</span><h3>Device twin ACS-1</h3><p>Guards <code>room_p1_28</code>. Statechart, local PDP and simulated hardware. Tapping a card replays the twin's recorded reaction.</p></a>
-    <a class="card" href="device/?d=acs2"><span class="tag replay">recorded run</span><h3>Device twin ACS-2</h3><p>Guards <code>meeting_a</code>. The same card can be allowed here and unknown on ACS-1: each twin only knows its own space.</p></a>
+    <a class="card" id="studio-link" href="studio/index.html"><span class="tag live">live model</span><h3>PIP Studio</h3><p>The O2 → O1 → O0 tower. Edit the level-0 model: the conformance check, the commit gate and the projection run in your browser, with the same code the server runs.</p></a>
+    <a class="card" href="fleet/index.html"><span class="tag replay">recorded run</span><h3>Fleet controller</h3><p>Map, PIP view (devices → spaces, decision audit), KPIs, rules, fleet behaviour, all taken from the recorded run.</p></a>
+    <a class="card" href="device/index.html?d=acs1"><span class="tag replay">recorded run</span><h3>Device twin ACS-1</h3><p>Guards <code>room_p1_28</code>. Statechart, local PDP and simulated hardware. Tapping a card replays the twin's recorded reaction.</p></a>
+    <a class="card" href="device/index.html?d=acs2"><span class="tag replay">recorded run</span><h3>Device twin ACS-2</h3><p>Guards <code>meeting_a</code>. The same card can be allowed here and unknown on ACS-1: each twin only knows its own space.</p></a>
   </div>
 
   <h2>A five-minute tour</h2>
@@ -93,9 +93,11 @@
 </main>
 <script>
   // open the Studio directly on the captured level-0 model
-  fetch('snapshot/meta.json').then(function (r) { return r.json(); }).then(function (m) {
-    document.getElementById('studio-link').href = 'studio/?model=' + encodeURIComponent(m.modelId);
-  }).catch(function () { /* the Studio opens on the first model */ });
+  // (a classic script, not fetch: sandboxed hosts such as anonymous.4open.science block fetch of the snapshot)
+  window.__demoSnapshot = function (p, m) {
+    if (p === 'meta.json') document.getElementById('studio-link').href = 'studio/index.html?model=' + encodeURIComponent(m.modelId);
+  };
+  document.head.appendChild(Object.assign(document.createElement('script'), { src: 'snapshot/meta.json.js' }));  // missing: the Studio opens on the first model
 </script>
 </body>
 </html>
