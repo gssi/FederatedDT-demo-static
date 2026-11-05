@@ -38,30 +38,44 @@
   .facts span { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: 13px; }
   .note { color: var(--muted); font-size: 14px; }
   .wrap { overflow-x: auto; }
+  .domains { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .domain { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .domain h3 { margin: 0 0 10px; font-size: 15px; }
+  .domain h3 span { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .cfgs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cfgs a { background: var(--chip); border: 1px solid transparent; border-radius: 6px; padding: 3px 9px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; text-decoration: none; }
+  .cfgs a:hover { border-color: var(--accent); }
+  .cfgs a.recorded { border-color: var(--ok); color: var(--ok); }
 </style>
 </head>
 <body>
 <main>
   <h1>Offline demonstrator</h1>
-  <p class="lead">A model-driven access-control federation, shown on one configuration of the evaluation. The pages below are the system's own user interfaces, built unchanged except for the data layer. Nothing needs to be installed and no data leaves your browser.</p>
+  <p class="lead">A model-driven access-control federation, shown on the configurations of its evaluation: all 30 open in the Studio, and one of them is recorded end to end on the fleet and the device twins. The pages below are the system's own user interfaces, built unchanged except for the data layer. Nothing needs to be installed and no data leaves your browser.</p>
 
   <div class="flow"><b>PIP Studio</b> multi-level model → <b>Fleet controller</b> projection, per-space bundles → <b>Device twins ×2</b> local decisions, statecharts</div>
 
-  <h2>The instance</h2>
-  <p>Configuration <code>office-01</code> of the office domain. It is the seed row of RQ1 and passed all four checks, both in simulation and on the two hardware controllers.</p>
+  <h2>The recorded instance</h2>
+  <p>Configuration <code>office-01</code> of the office domain. It is the seed row of RQ1 and passed all four checks, both in simulation and on the two hardware controllers. The fleet and twin pages show this run.</p>
   <div class="facts"><span>4 roles</span><span>8 principals, 8 NFC credentials (1 revoked)</span><span>6 spaces</span><span>5 policies (1 deny)</span><span>3 time windows</span><span>2 access points, 10 sensors</span><span>2 KPIs, 1 goal</span></div>
 
   <h2>Open the system</h2>
   <div class="cards">
-    <a class="card" id="studio-link" href="studio/index.html"><span class="tag live">live model</span><h3>PIP Studio</h3><p>The O2 → O1 → O0 tower. Edit the level-0 model: the conformance check, the commit gate and the projection run in your browser, with the same code the server runs.</p></a>
+    <a class="card" id="studio-link" href="studio/index.html"><span class="tag live">live model</span><h3>PIP Studio</h3><p>The O2 → O1 → O0 tower of every configuration. Edit a level-0 model: the conformance check, the commit gate and the projection run in your browser, with the same code the server runs.</p></a>
     <a class="card" href="fleet/index.html"><span class="tag replay">recorded run</span><h3>Fleet controller</h3><p>Map, PIP view (devices → spaces, decision audit), KPIs, rules, fleet behaviour, all taken from the recorded run.</p></a>
     <a class="card" href="device/index.html?d=acs1"><span class="tag replay">recorded run</span><h3>Device twin ACS-1</h3><p>Guards <code>room_p1_28</code>. Statechart, local PDP and simulated hardware. Tapping a card replays the twin's recorded reaction.</p></a>
     <a class="card" href="device/index.html?d=acs2"><span class="tag replay">recorded run</span><h3>Device twin ACS-2</h3><p>Guards <code>meeting_a</code>. The same card can be allowed here and unknown on ACS-1: each twin only knows its own space.</p></a>
   </div>
 
+  <section id="configurations" hidden>
+    <h2>The 30 configurations</h2>
+    <p>The subjects of RQ1, ten per domain. Each link opens that level-0 model in the Studio, under its domain model and the shared metamodel; it can be edited, checked and committed like <code>office-01</code>. The outlined one is the recorded instance.</p>
+    <div class="domains" id="domains"></div>
+  </section>
+
   <h2>A five-minute tour</h2>
   <ol class="steps">
-    <li><b>Model.</b> Open the Studio on <code>office-01</code>. Switch between the Diagram and Table views. The breadcrumb leads up to the domain model and the metamodel. <span>The badge "10 of 10 sensors online" is the fleet's heartbeat, simulated here.</span></li>
+    <li><b>Model.</b> Open the Studio on <code>office-01</code>. Switch between the Diagram and Table views. The breadcrumb leads up to the domain model and the metamodel, and the sidebar lists the other 29 configurations by project. <span>The badge "10 of 10 sensors online" is the fleet's heartbeat, simulated here for the recorded instance.</span></li>
     <li><b>Commit.</b> In the Table view, change the <code>label</code> of an access point and press Save. The model moves to version 2. <span>Changes stay in this browser; "Reset demo" restores the captured model.</span></li>
     <li><b>Gate.</b> Remove the sensor <code>acs1_co2</code> from <code>acs1 → senses</code>. The check reports <code>C8.TOO_FEW</code> and <code>P5.INPUT_UNBOUND</code> (the KPI <code>co2.avg</code> would read an unbound sensor), and Save is disabled. Press Discard.</li>
     <li><b>Fleet.</b> Open the fleet. The Map shows the projection the fleet pulled and the bundle each device received. The PIP tab lists the 18 recorded decisions, and new ones arrive as the run is replayed.</li>
@@ -71,7 +85,7 @@
   <h2>What is live and what is recorded</h2>
   <div class="wrap"><table>
     <tr><th>Part</th><th>In this demo</th></tr>
-    <tr><td>Studio: model, conformance, commit gate, projection, export</td><td>Live. The metamodel library runs in the page, starting from the rows captured in the Studio's database.</td></tr>
+    <tr><td>Studio: model, conformance, commit gate, projection, export</td><td>Live, on all 30 configurations. The metamodel library runs in the page, starting from the rows captured in the Studio's database for <code>office-01</code> and from the evaluation's model files for the other 29.</td></tr>
     <tr><td>Fleet and twins: all reads</td><td>Recorded from the running system (simulated devices) right after the 18 probe taps of the evaluation.</td></tr>
     <tr><td>Fleet and twin event streams</td><td>Replayed in a loop, with their original timing. Timestamps are shifted to the present.</td></tr>
     <tr><td>Card taps on a twin</td><td>The recorded reaction of that twin to that card.</td></tr>
@@ -94,10 +108,37 @@
 <script>
   // open the Studio directly on the captured level-0 model
   // (a classic script, not fetch: sandboxed hosts such as anonymous.4open.science block fetch of the snapshot)
+  var studio = function (id) { return 'studio/index.html?model=' + encodeURIComponent(id); };
+  var recorded = null, subjects = null;
+  // the 30 level-0 models by project, each a link into the Studio; the recorded instance is outlined
+  function configurations() {
+    if (!subjects) return;
+    var box = document.getElementById('domains');
+    box.textContent = '';
+    (subjects.projects || []).forEach(function (p) {
+      var models = (subjects.models || []).filter(function (m) { return m.level === 0 && m.projectId === p.id; }).sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+      if (!models.length) return;
+      var o1 = (subjects.models || []).filter(function (m) { return m.id === models[0].typeModelId; })[0];
+      var card = document.createElement('div'); card.className = 'domain';
+      var h = document.createElement('h3'); h.textContent = p.name + ' ';
+      if (o1) { var s = document.createElement('span'); s.textContent = 'domain model ' + o1.name; h.appendChild(s); }
+      var list = document.createElement('div'); list.className = 'cfgs';
+      models.forEach(function (m) {
+        var a = document.createElement('a'); a.href = studio(m.id); a.textContent = m.name;
+        if (m.id === recorded) { a.className = 'recorded'; a.title = 'the recorded instance'; }
+        list.appendChild(a);
+      });
+      card.appendChild(h); card.appendChild(list); box.appendChild(card);
+    });
+    document.getElementById('configurations').hidden = !box.children.length;
+  }
   window.__demoSnapshot = function (p, m) {
-    if (p === 'meta.json') document.getElementById('studio-link').href = 'studio/index.html?model=' + encodeURIComponent(m.modelId);
+    if (p === 'meta.json') { recorded = m.modelId; document.getElementById('studio-link').href = studio(m.modelId); }
+    if (p === 'studio/models.json') subjects = m;
+    configurations();
   };
-  document.head.appendChild(Object.assign(document.createElement('script'), { src: 'snapshot/meta.json.js' }));  // missing: the Studio opens on the first model
+  // missing files: the Studio opens on the first model, the list of configurations stays hidden
+  ['meta.json', 'studio/models.json'].forEach(function (p) { document.head.appendChild(Object.assign(document.createElement('script'), { src: 'snapshot/' + p + '.js' })); });
 </script>
 </body>
 </html>
